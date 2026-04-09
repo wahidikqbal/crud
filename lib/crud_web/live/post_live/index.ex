@@ -23,6 +23,13 @@ defmodule CrudWeb.PostLive.Index do
       >
         <:col :let={{_id, post}} label="Title">{post.title}</:col>
         <:col :let={{_id, post}} label="Body">{post.body}</:col>
+        <:col :let={{_id, post}} label="Category">
+          <%= if post.category do %>
+            <%= post.category.name %>
+          <% else %>
+            No category
+          <% end %>
+        </:col>
         <:action :let={{_id, post}}>
           <div class="sr-only">
             <.link navigate={~p"/posts/#{post}"}>Show</.link>

@@ -4,7 +4,7 @@ defmodule Crud.Blog.Category do
 
   schema "categories" do
     field :name, :string
-
+    has_many :posts, Crud.Blog.Post
     timestamps(type: :utc_datetime)
   end
 

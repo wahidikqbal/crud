@@ -16,6 +16,7 @@ defmodule CrudWeb.PostLive.Form do
       <.form for={@form} id="post-form" phx-change="validate" phx-submit="save">
         <.input field={@form[:title]} type="text" label="Title" />
         <.input field={@form[:body]} type="textarea" label="Body" />
+        <.input field={@form[:category_id]} type="select" label="Category" options={@category_options} />
         <footer>
           <.button phx-disable-with="Saving..." variant="primary">Save Post</.button>
           <.button navigate={return_path(@return_to, @post)}>Cancel</.button>
@@ -27,10 +28,13 @@ defmodule CrudWeb.PostLive.Form do
 
   @impl true
   def mount(params, _session, socket) do
-    {:ok,
+    socket =
      socket
      |> assign(:return_to, return_to(params["return_to"]))
-     |> apply_action(socket.assigns.live_action, params)}
+     |> assign_select_options() # Menambahkan opsi kategori ke socket
+     |> apply_action(socket.assigns.live_action, params)
+
+    {:ok, socket}
   end
 
   defp return_to("show"), do: "show"
@@ -52,6 +56,12 @@ defmodule CrudWeb.PostLive.Form do
     |> assign(:page_title, "New Post")
     |> assign(:post, post)
     |> assign(:form, to_form(Blog.change_post(post)))
+  end
+
+  # Fungsi untuk mengambil kategori dan mengubahnya menjadi opsi untuk select input
+  defp assign_select_options(socket) do
+    socket
+    |> assign(:category_options, Enum.map(Blog.list_categories(), &{&1.name, &1.id}))
   end
 
   @impl true
