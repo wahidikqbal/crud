@@ -18,6 +18,21 @@ defmodule CrudWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+
+    # Routes for the Post resource
+    live "/posts", PostLive.Index, :index
+    live "/posts/new", PostLive.Form, :new
+    # live "/posts/:id", PostLive.Show, :show
+    live "/posts/:id/edit", PostLive.Form, :edit
+    get "/posts/:id", PostController, :show
+
+    # Routes for the Category resource
+    live "/categories", CategoryLive.Index, :index
+    live "/categories/new", CategoryLive.Form, :new
+    live "/categories/:id/edit", CategoryLive.Form, :edit
+    live "/categories/:id", CategoryLive.Show, :show
+
+    
   end
 
   # Other scopes may use custom stacks.

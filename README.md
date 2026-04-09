@@ -16,3 +16,8 @@ Ready to run in production? Please [check our deployment guides](https://hexdocs
 * Docs: https://hexdocs.pm/phoenix
 * Forum: https://elixirforum.com/c/phoenix-forum
 * Source: https://github.com/phoenixframework/phoenix
+
+## TASK
+- Blog Post Category Tag
+- Project Task Label
+- Product Category Tag
