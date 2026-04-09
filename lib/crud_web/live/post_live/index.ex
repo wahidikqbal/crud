@@ -60,9 +60,12 @@ defmodule CrudWeb.PostLive.Index do
   @impl true
   def handle_event("delete", %{"id" => id}, socket) do
     post = Blog.get_post!(id)
-    {:ok, _} = Blog.delete_post(post)
+    {:ok, post} = Blog.delete_post(post)
 
-    {:noreply, stream_delete(socket, :posts, post)}
+    {:noreply,
+     socket
+     |> put_flash(:info, "Post deleted successfully.")
+     |> stream_delete(:posts, post)}
   end
 
   defp list_posts() do
