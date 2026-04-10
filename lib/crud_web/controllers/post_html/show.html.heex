@@ -15,6 +15,23 @@
   <.list>
     <:item title="Title">{@post.title}</:item>
     <:item title="Body">{@post.body}</:item>
-    <:item title="Category">{@post.category.name}</:item>
+    <:item title="Category">
+      <%= if @post.category do %>
+        {@post.category.name}
+      <% else %>
+        No Category
+      <% end %>
+    </:item>
+    <:item title="Tags">
+      <%= if @post.tags && Enum.any?(@post.tags) do %>
+        <ul>
+          <%= for tag <- @post.tags do %>
+            <li>{tag.name}</li>
+          <% end %>
+        </ul>
+      <% else %>
+        No Tags
+      <% end %>
+    </:item>
   </.list>
 </Layouts.app>
