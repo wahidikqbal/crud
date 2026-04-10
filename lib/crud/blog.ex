@@ -44,16 +44,49 @@ defmodule Crud.Blog do
     |> Repo.preload([:category, :tags])
   end
 
+
+  ##########################################################################
   # Fungsi untuk mengambil tag berdasarkan ID yang diberikan dalam atribut
   defp tags_from_attrs(attrs) do
-    tag_ids = Map.get(attrs, "tag_ids", [])
-    Repo.all(from t in Tag, where: t.id in ^tag_ids)
+    attrs
+    |> Map.get("tag_ids", Map.get(attrs, :tag_ids, [])) # Ambil tag_ids dari string atau atom
+    |> List.wrap() # Pastikan selalu dalam bentuk list
+    |> Enum.map(&parse_tag_id/1) # panggil fungsi parse_tag_id untuk setiap ID
+    |> Enum.reject(&is_nil/1) # Hapus ID yang tidak valid (nil)
+    |> case do # Jika tidak ada ID yang valid, kembalikan list kosong
+      [] -> []
+      ids -> Repo.all(from t in Tag, where: t.id in ^ids) # Ambil tag dari database berdasarkan ID yang valid
+    end
   end
 
+  # Fungsi Parse tag_id dari berbagai tipe: integer, binary/string, atau lainnya
+  defp parse_tag_id(id) when is_integer(id), do: id
+
+  defp parse_tag_id(id) when is_binary(id) do
+    case Integer.parse(id) do
+      {int, _} -> int
+      _ -> nil
+    end
+  end
+
+  defp parse_tag_id(_), do: nil
+  #########################################################################
+
+  @doc """
+  Creates a post.
+  ## Examples
+
+      iex> create_post(%{field: value})
+      {:ok, %Post{}}
+
+      iex> create_post(%{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
   def create_post(attrs) do
     %Post{}
     |> Post.changeset(attrs)
-    |> put_assoc(:tags, tags_from_attrs(attrs))
+    |> put_assoc(:tags, tags_from_attrs(attrs)) # Menambahkan asosiasi tags ke changeset dengan fungsi tags_from_attrs diatas
     |> Repo.insert()
   end
 
@@ -72,7 +105,7 @@ defmodule Crud.Blog do
   def update_post(%Post{} = post, attrs) do
     post
     |> Post.changeset(attrs)
-    |> put_assoc(:tags, tags_from_attrs(attrs))
+    |> put_assoc(:tags, tags_from_attrs(attrs)) # Menambahkan asosiasi tags ke changeset dengan fungsi tags_from_attrs diatas
     |> Repo.update()
   end
 
