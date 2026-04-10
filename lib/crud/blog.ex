@@ -4,10 +4,13 @@ defmodule Crud.Blog do
   """
 
   import Ecto.Query, warn: false
-  alias Crud.Repo
+  import Ecto.Changeset
 
+  alias Crud.Repo
   alias Crud.Blog.Post
   alias Crud.Blog.Category
+  alias Crud.Blog.Tag
+
   @doc """
   Returns the list of posts.
 
@@ -19,7 +22,7 @@ defmodule Crud.Blog do
   """
   def list_posts do
     Repo.all(Post)
-    |> Repo.preload(:category)
+    |> Repo.preload([:category, :tags])
   end
 
   @doc """
@@ -38,7 +41,7 @@ defmodule Crud.Blog do
   """
   def get_post!(id) do
     Repo.get!(Post, id)
-    |> Repo.preload(:category)
+    |> Repo.preload([:category, :tags])
   end
 
   @doc """
@@ -53,9 +56,16 @@ defmodule Crud.Blog do
       {:error, %Ecto.Changeset{}}
 
   """
+  # Fungsi untuk mengambil tag berdasarkan ID yang diberikan dalam atribut
+  defp tags_from_attrs(attrs) do
+    tag_ids = Map.get(attrs, "tag_ids", [])
+    Repo.all(from t in Tag, where: t.id in ^tag_ids)
+  end
+
   def create_post(attrs) do
     %Post{}
     |> Post.changeset(attrs)
+    |> put_assoc(:tags, tags_from_attrs(attrs))
     |> Repo.insert()
   end
 
@@ -74,6 +84,7 @@ defmodule Crud.Blog do
   def update_post(%Post{} = post, attrs) do
     post
     |> Post.changeset(attrs)
+    |> put_assoc(:tags, tags_from_attrs(attrs))
     |> Repo.update()
   end
 
@@ -103,10 +114,16 @@ defmodule Crud.Blog do
 
   """
   def change_post(%Post{} = post, attrs \\ %{}) do
-    Post.changeset(post, attrs)
+    post
+    |> with_tags_ids()
+    |> Post.changeset(attrs)
   end
 
-  alias Crud.Blog.Category
+  defp with_tags_ids(%Post{tags: tags} = post) when is_list(tags) do
+    %{post | tag_ids: Enum.map(tags, & &1.id)}
+  end
+
+  defp with_tags_ids(post), do: post
 
   @doc """
   Returns the list of categories.

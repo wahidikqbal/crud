@@ -17,6 +17,8 @@ defmodule CrudWeb.PostLive.Form do
         <.input field={@form[:title]} type="text" label="Title" />
         <.input field={@form[:body]} type="textarea" label="Body" />
         <.input field={@form[:category_id]} type="select" label="Category" options={@category_options} />
+        <.input field={@form[:tag_ids]} type="select" label="Tags" multiple options={@tag_options} />
+
         <footer>
           <.button phx-disable-with="Saving..." variant="primary">Save Post</.button>
           <.button navigate={return_path(@return_to, @post)}>Cancel</.button>
@@ -61,7 +63,8 @@ defmodule CrudWeb.PostLive.Form do
   # Fungsi untuk mengambil kategori dan mengubahnya menjadi opsi untuk select input
   defp assign_select_options(socket) do
     socket
-    |> assign(:category_options, Enum.map(Blog.list_categories(), &{&1.name, &1.id}))
+    |> assign(:category_options, Enum.map(Blog.list_categories(), &{&1.name, &1.id})) # Menambahkan opsi kategori ke socket
+    |> assign(:tag_options, Enum.map(Blog.list_tags(), &{&1.name, &1.id})) # Menambahkan opsi tag ke socket
   end
 
   @impl true
