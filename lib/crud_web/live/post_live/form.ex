@@ -28,6 +28,7 @@ defmodule CrudWeb.PostLive.Form do
     """
   end
 
+
   @impl true
   def mount(params, _session, socket) do
     socket =
@@ -42,6 +43,7 @@ defmodule CrudWeb.PostLive.Form do
   defp return_to("show"), do: "show"
   defp return_to(_), do: "index"
 
+  # memanggil fungsi edit dengan parameter id untuk mengambil data post yang akan diedit
   defp apply_action(socket, :edit, %{"id" => id}) do
     post = Blog.get_post!(id)
 
@@ -51,6 +53,7 @@ defmodule CrudWeb.PostLive.Form do
     |> assign(:form, to_form(Blog.change_post(post)))
   end
 
+  # memanggil fungsi new untuk membuat data post baru
   defp apply_action(socket, :new, _params) do
     post = %Post{}
 
@@ -60,7 +63,7 @@ defmodule CrudWeb.PostLive.Form do
     |> assign(:form, to_form(Blog.change_post(post)))
   end
 
-  # Fungsi untuk mengambil kategori dan mengubahnya menjadi opsi untuk select input
+  # Fungsi untuk mengambil kategori dan tag kemudian mengubahnya menjadi opsi untuk select input
   defp assign_select_options(socket) do
     socket
     |> assign(:category_options, Enum.map(Blog.list_categories(), &{&1.name, &1.id})) # Menambahkan opsi kategori ke socket
@@ -77,6 +80,7 @@ defmodule CrudWeb.PostLive.Form do
     save_post(socket, socket.assigns.live_action, post_params)
   end
 
+  # dipanggil ketika :edit. kemudian panggil fungsi update_post dari Blog untuk mengupdate data post
   defp save_post(socket, :edit, post_params) do
     case Blog.update_post(socket.assigns.post, post_params) do
       {:ok, post} ->
@@ -90,6 +94,7 @@ defmodule CrudWeb.PostLive.Form do
     end
   end
 
+  #dipanggil ketika :new, kemudian panggil fungsi create_post dari Blog untuk membuat data post baru
   defp save_post(socket, :new, post_params) do
     case Blog.create_post(post_params) do
       {:ok, post} ->
