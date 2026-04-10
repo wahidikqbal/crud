@@ -30,6 +30,15 @@ defmodule CrudWeb.PostLive.Index do
             No category
           <% end %>
         </:col>
+
+        <:col :let={{_id, post}} label="Tags">
+          <%= if post.tags && length(post.tags) > 0 do %>
+            {Enum.map_join(post.tags, ", ", & &1.name)}
+          <% else %>
+            No Tags
+          <% end %>
+        </:col>
+
         <:action :let={{_id, post}}>
           <div class="sr-only">
             <.link navigate={~p"/posts/#{post}"}>Show</.link>

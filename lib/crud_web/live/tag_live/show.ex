@@ -1,7 +1,7 @@
 defmodule CrudWeb.TagLive.Show do
   use CrudWeb, :live_view
 
-  alias Crud.Post
+  alias Crud.Blog
 
   @impl true
   def render(assigns) do
@@ -32,6 +32,6 @@ defmodule CrudWeb.TagLive.Show do
     {:ok,
      socket
      |> assign(:page_title, "Show Tag")
-     |> assign(:tag, Post.get_tag!(id))}
+     |> assign(:tag, Blog.get_tag!(id))}
   end
 end

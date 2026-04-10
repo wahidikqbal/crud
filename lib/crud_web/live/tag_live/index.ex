@@ -1,7 +1,7 @@
 defmodule CrudWeb.TagLive.Index do
   use CrudWeb, :live_view
 
-  alias Crud.Post
+  alias Crud.Blog
 
   @impl true
   def render(assigns) do
@@ -51,13 +51,13 @@ defmodule CrudWeb.TagLive.Index do
 
   @impl true
   def handle_event("delete", %{"id" => id}, socket) do
-    tag = Post.get_tag!(id)
-    {:ok, _} = Post.delete_tag(tag)
+    tag = Blog.get_tag!(id)
+    {:ok, _} = Blog.delete_tag(tag)
 
     {:noreply, stream_delete(socket, :tags, tag)}
   end
 
   defp list_tags() do
-    Post.list_tags()
+    Blog.list_tags()
   end
 end

@@ -1,8 +1,8 @@
 defmodule CrudWeb.TagLive.Form do
   use CrudWeb, :live_view
 
-  alias Crud.Post
-  alias Crud.Post.Tag
+  alias Crud.Blog
+  alias Crud.Blog.Tag
 
   @impl true
   def render(assigns) do
@@ -36,12 +36,12 @@ defmodule CrudWeb.TagLive.Form do
   defp return_to(_), do: "index"
 
   defp apply_action(socket, :edit, %{"id" => id}) do
-    tag = Post.get_tag!(id)
+    tag = Blog.get_tag!(id)
 
     socket
     |> assign(:page_title, "Edit Tag")
     |> assign(:tag, tag)
-    |> assign(:form, to_form(Post.change_tag(tag)))
+    |> assign(:form, to_form(Blog.change_tag(tag)))
   end
 
   defp apply_action(socket, :new, _params) do
@@ -50,12 +50,12 @@ defmodule CrudWeb.TagLive.Form do
     socket
     |> assign(:page_title, "New Tag")
     |> assign(:tag, tag)
-    |> assign(:form, to_form(Post.change_tag(tag)))
+    |> assign(:form, to_form(Blog.change_tag(tag)))
   end
 
   @impl true
   def handle_event("validate", %{"tag" => tag_params}, socket) do
-    changeset = Post.change_tag(socket.assigns.tag, tag_params)
+    changeset = Blog.change_tag(socket.assigns.tag, tag_params)
     {:noreply, assign(socket, form: to_form(changeset, action: :validate))}
   end
 
@@ -64,7 +64,7 @@ defmodule CrudWeb.TagLive.Form do
   end
 
   defp save_tag(socket, :edit, tag_params) do
-    case Post.update_tag(socket.assigns.tag, tag_params) do
+    case Blog.update_tag(socket.assigns.tag, tag_params) do
       {:ok, tag} ->
         {:noreply,
          socket
@@ -77,7 +77,7 @@ defmodule CrudWeb.TagLive.Form do
   end
 
   defp save_tag(socket, :new, tag_params) do
-    case Post.create_tag(tag_params) do
+    case Blog.create_tag(tag_params) do
       {:ok, tag} ->
         {:noreply,
          socket

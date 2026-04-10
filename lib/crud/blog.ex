@@ -4,10 +4,13 @@ defmodule Crud.Blog do
   """
 
   import Ecto.Query, warn: false
-  alias Crud.Repo
+  import Ecto.Changeset
 
+  alias Crud.Repo
   alias Crud.Blog.Post
   alias Crud.Blog.Category
+  alias Crud.Blog.Tag
+
   @doc """
   Returns the list of posts.
 
@@ -19,7 +22,7 @@ defmodule Crud.Blog do
   """
   def list_posts do
     Repo.all(Post)
-    |> Repo.preload(:category)
+    |> Repo.preload([:category, :tags])
   end
 
   @doc """
@@ -38,12 +41,39 @@ defmodule Crud.Blog do
   """
   def get_post!(id) do
     Repo.get!(Post, id)
-    |> Repo.preload(:category)
+    |> Repo.preload([:category, :tags])
   end
+
+
+  ##########################################################################
+  # Fungsi untuk mengambil tag berdasarkan ID yang diberikan dalam atribut
+  defp tags_from_attrs(attrs) do
+    attrs
+    |> Map.get("tag_ids", Map.get(attrs, :tag_ids, [])) # Ambil tag_ids dari string atau atom
+    |> List.wrap() # Pastikan selalu dalam bentuk list
+    |> Enum.map(&parse_tag_id/1) # panggil fungsi parse_tag_id untuk setiap ID
+    |> Enum.reject(&is_nil/1) # Hapus ID yang tidak valid (nil)
+    |> case do # Jika tidak ada ID yang valid, kembalikan list kosong
+      [] -> []
+      ids -> Repo.all(from t in Tag, where: t.id in ^ids) # Ambil tag dari database berdasarkan ID yang valid
+    end
+  end
+
+  # Fungsi Parse tag_id dari berbagai tipe: integer, binary/string, atau lainnya
+  defp parse_tag_id(id) when is_integer(id), do: id
+
+  defp parse_tag_id(id) when is_binary(id) do
+    case Integer.parse(id) do
+      {int, _} -> int
+      _ -> nil
+    end
+  end
+
+  defp parse_tag_id(_), do: nil
+  #########################################################################
 
   @doc """
   Creates a post.
-
   ## Examples
 
       iex> create_post(%{field: value})
@@ -56,6 +86,7 @@ defmodule Crud.Blog do
   def create_post(attrs) do
     %Post{}
     |> Post.changeset(attrs)
+    |> put_assoc(:tags, tags_from_attrs(attrs)) # Menambahkan asosiasi tags ke changeset dengan fungsi tags_from_attrs diatas
     |> Repo.insert()
   end
 
@@ -74,6 +105,7 @@ defmodule Crud.Blog do
   def update_post(%Post{} = post, attrs) do
     post
     |> Post.changeset(attrs)
+    |> put_assoc(:tags, tags_from_attrs(attrs)) # Menambahkan asosiasi tags ke changeset dengan fungsi tags_from_attrs diatas
     |> Repo.update()
   end
 
@@ -103,10 +135,17 @@ defmodule Crud.Blog do
 
   """
   def change_post(%Post{} = post, attrs \\ %{}) do
-    Post.changeset(post, attrs)
+    post
+    |> with_tags_ids()
+    |> Post.changeset(attrs)
   end
 
-  alias Crud.Blog.Category
+  # Fungsi untuk menambahkan tag_ids ke dalam struct Post agar bisa digunakan dalam form edit
+  defp with_tags_ids(%Post{tags: tags} = post) when is_list(tags) do
+    %{post | tag_ids: Enum.map(tags, & &1.id)}
+  end
+
+  defp with_tags_ids(post), do: post
 
   @doc """
   Returns the list of categories.
@@ -200,5 +239,101 @@ defmodule Crud.Blog do
   """
   def change_category(%Category{} = category, attrs \\ %{}) do
     Category.changeset(category, attrs)
+  end
+
+  alias Crud.Blog.Tag
+
+  @doc """
+  Returns the list of tags.
+
+  ## Examples
+
+      iex> list_tags()
+      [%Tag{}, ...]
+
+  """
+  def list_tags do
+    Repo.all(Tag)
+  end
+
+  @doc """
+  Gets a single tag.
+
+  Raises `Ecto.NoResultsError` if the Tag does not exist.
+
+  ## Examples
+
+      iex> get_tag!(123)
+      %Tag{}
+
+      iex> get_tag!(456)
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_tag!(id), do: Repo.get!(Tag, id)
+
+  @doc """
+  Creates a tag.
+
+  ## Examples
+
+      iex> create_tag(%{field: value})
+      {:ok, %Tag{}}
+
+      iex> create_tag(%{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def create_tag(attrs) do
+    %Tag{}
+    |> Tag.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  @doc """
+  Updates a tag.
+
+  ## Examples
+
+      iex> update_tag(tag, %{field: new_value})
+      {:ok, %Tag{}}
+
+      iex> update_tag(tag, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def update_tag(%Tag{} = tag, attrs) do
+    tag
+    |> Tag.changeset(attrs)
+    |> Repo.update()
+  end
+
+  @doc """
+  Deletes a tag.
+
+  ## Examples
+
+      iex> delete_tag(tag)
+      {:ok, %Tag{}}
+
+      iex> delete_tag(tag)
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def delete_tag(%Tag{} = tag) do
+    Repo.delete(tag)
+  end
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking tag changes.
+
+  ## Examples
+
+      iex> change_tag(tag)
+      %Ecto.Changeset{data: %Tag{}}
+
+  """
+  def change_tag(%Tag{} = tag, attrs \\ %{}) do
+    Tag.changeset(tag, attrs)
   end
 end

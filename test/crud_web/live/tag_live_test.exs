@@ -2,7 +2,7 @@ defmodule CrudWeb.TagLiveTest do
   use CrudWeb.ConnCase
 
   import Phoenix.LiveViewTest
-  import Crud.PostFixtures
+  import Crud.BlogFixtures
 
   @create_attrs %{name: "some name"}
   @update_attrs %{name: "some updated name"}
