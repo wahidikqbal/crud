@@ -32,7 +32,12 @@ defmodule CrudWeb.Router do
     live "/categories/:id/edit", CategoryLive.Form, :edit
     live "/categories/:id", CategoryLive.Show, :show
 
-    
+    # Routes for the Tag resource
+    live "/tags", TagLive.Index, :index
+    live "/tags/new", TagLive.Form, :new
+    live "/tags/:id", TagLive.Show, :show
+    live "/tags/:id/edit", TagLive.Form, :edit
+
   end
 
   # Other scopes may use custom stacks.
