@@ -44,18 +44,6 @@ defmodule Crud.Blog do
     |> Repo.preload([:category, :tags])
   end
 
-  @doc """
-  Creates a post.
-
-  ## Examples
-
-      iex> create_post(%{field: value})
-      {:ok, %Post{}}
-
-      iex> create_post(%{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
   # Fungsi untuk mengambil tag berdasarkan ID yang diberikan dalam atribut
   defp tags_from_attrs(attrs) do
     tag_ids = Map.get(attrs, "tag_ids", [])
@@ -119,6 +107,7 @@ defmodule Crud.Blog do
     |> Post.changeset(attrs)
   end
 
+  # Fungsi untuk menambahkan tag_ids ke dalam struct Post agar bisa digunakan dalam form edit
   defp with_tags_ids(%Post{tags: tags} = post) when is_list(tags) do
     %{post | tag_ids: Enum.map(tags, & &1.id)}
   end
