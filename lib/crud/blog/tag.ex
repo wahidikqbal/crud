@@ -4,7 +4,7 @@ defmodule Crud.Blog.Tag do
 
   schema "tags" do
     field :name, :string
-
+    many_to_many :posts, Crud.Blog.Post, join_through: "posts_tags", on_replace: :delete
     timestamps(type: :utc_datetime)
   end
 
