@@ -18,7 +18,7 @@ defmodule CrudWeb.ItemLive.Form do
         <.input field={@form[:name]} type="text" label="Name" />
         <.input field={@form[:code]} type="text" label="Code" />
         <.input field={@form[:category_id]} type="select" label="Category" options={@category_options} />
-        <%!-- <.input field={@form[:tag_ids]} type="select" label="Tags" multiple options={@tag_options} /> --%>
+        <.input field={@form[:tag_ids]} type="select" label="Tags" multiple options={@tag_options} />
 
         <footer>
           <.button phx-disable-with="Saving..." variant="primary">Save Item</.button>
@@ -41,7 +41,7 @@ defmodule CrudWeb.ItemLive.Form do
   defp assign_select_options(socket) do
     socket
     |> assign(:category_options, Enum.map(Blog.list_categories(), &{&1.name, &1.id}))
-    # |> assign(:tag_options, Enum.map(Blog.list_tags(), &{&1.name, &1.id}))
+    |> assign(:tag_options, Enum.map(Blog.list_tags(), &{&1.name, &1.id}))
   end
 
   defp return_to("show"), do: "show"

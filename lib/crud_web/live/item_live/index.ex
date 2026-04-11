@@ -31,13 +31,13 @@ defmodule CrudWeb.ItemLive.Index do
             No category
           <% end %>
         </:col>
-        <%!-- <:col :let={{_id, item}} label="Tags">
+        <:col :let={{_id, item}} label="Tags">
           <%= if item.tags && length(item.tags) > 0 do %>
             {Enum.map_join(item.tags, ", ", & &1.name)}
           <% else %>
             No Tags
           <% end %>
-        </:col> --%>
+        </:col>
 
         <:action :let={{_id, item}}>
           <div class="sr-only">

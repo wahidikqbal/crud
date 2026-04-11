@@ -5,6 +5,8 @@ defmodule Crud.Blog.Tag do
   schema "tags" do
     field :name, :string
     many_to_many :posts, Crud.Blog.Post, join_through: "posts_tags", on_replace: :delete
+    many_to_many :items, Crud.Product.Item, join_through: "item_tag_relations", on_replace: :delete
+
     timestamps(type: :utc_datetime)
   end
 

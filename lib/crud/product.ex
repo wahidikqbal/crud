@@ -4,9 +4,11 @@ defmodule Crud.Product do
   """
 
   import Ecto.Query, warn: false
-  alias Crud.Repo
+  import Ecto.Changeset
 
+  alias Crud.Repo
   alias Crud.Product.Item
+  alias Crud.Blog.Tag
 
   @doc """
   Returns the list of items.
@@ -19,7 +21,7 @@ defmodule Crud.Product do
   """
   def list_items do
     Repo.all(Item)
-    |> Repo.preload([ :category ])
+    |> Repo.preload([ :category, :tags ])
   end
 
   @doc """
@@ -38,24 +40,37 @@ defmodule Crud.Product do
   """
   def get_item!(id) do
     Repo.get!(Item, id)
-    |> Repo.preload([ :category ])
+    |> Repo.preload([ :category, :tags ])
   end
 
-  @doc """
-  Creates a item.
+  # Helper function untuk mengambil tag berdasarkan atribut yang diberikan
+  defp tag_from_attrs(attrs) do
+    attrs
+    |> Map.get("tag_ids", Map.get(attrs, :tag_ids, []))
+    |> List.wrap() # Ensure it's a list
+    |> Enum.map(&parse_tag_id/1)
+    |> Enum.reject(&is_nil/1)
+    |> case do
+      [] -> []
+      ids -> Repo.all(from t in Tag, where: t.id in ^ids)
+    end
+  end
 
-  ## Examples
+  defp parse_tag_id(id) when is_integer(id), do: id
 
-      iex> create_item(%{field: value})
-      {:ok, %Item{}}
+  defp parse_tag_id(id) when is_binary(id) do
+    case Integer.parse(id) do
+      {int, _} -> int
+      _ -> nil
+    end
+  end
 
-      iex> create_item(%{field: bad_value})
-      {:error, %Ecto.Changeset{}}
+  defp parse_tag_id(_), do: nil
 
-  """
   def create_item(attrs) do
     %Item{}
     |> Item.changeset(attrs)
+    |> put_assoc(:tags, tag_from_attrs(attrs))
     |> Repo.insert()
   end
 
@@ -74,6 +89,7 @@ defmodule Crud.Product do
   def update_item(%Item{} = item, attrs) do
     item
     |> Item.changeset(attrs)
+    |> put_assoc(:tags, tag_from_attrs(attrs))
     |> Repo.update()
   end
 
@@ -103,6 +119,14 @@ defmodule Crud.Product do
 
   """
   def change_item(%Item{} = item, attrs \\ %{}) do
-    Item.changeset(item, attrs)
+    item
+    |> item_with_tags()
+    |> Item.changeset(attrs)
   end
+
+  defp item_with_tags(%Item{tags: tags} = item) when is_list(tags) do
+    %{item | tag_ids: Enum.map(tags, & &1.id)}
+  end
+
+  defp item_with_tags(item), do: item
 end

@@ -23,6 +23,20 @@ defmodule CrudWeb.ItemLive.Show do
       <.list>
         <:item title="Name">{@item.name}</:item>
         <:item title="Code">{@item.code}</:item>
+        <:item title="Category">
+          <%= if @item.category do %>
+            <%= @item.category.name %>
+          <% else %>
+            No category
+          <% end %>
+        </:item>
+        <:item title="Tags">
+          <%= if @item.tags && length(@item.tags) > 0 do %>
+            {Enum.map_join(@item.tags, ", ", & &1.name)}
+          <% else %>
+            No Tags
+          <% end %>
+        </:item>
       </.list>
     </Layouts.app>
     """
